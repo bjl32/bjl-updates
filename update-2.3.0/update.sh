@@ -340,3 +340,135 @@ pathprepend /opt/rustc/bin           PATH
 EOF
 source /etc/profile.d/rustc.sh
 # librsvg
+cd $udir
+lar wget https://download.gnome.org/sources/librsvg/2.58/librsvg-2.58.3.tar.xz
+lar tar -xf librsvg-2.58.3.tar.xz
+lar cd librsvg-2.58.3.tar.xz
+./configure --prefix=/usr    \
+            --enable-vala    \
+            --disable-static \
+            --docdir=/usr/share/doc/librsvg-2.58.3 &&
+make
+make DOC_INSTALL_DIR='$(docdir)' install
+#libtiff
+cd $udir
+lar wget https://download.osgeo.org/libtiff/tiff-4.6.0.tar.gz
+lar tar -xf tiff-4.6.0.tar.gz
+lar cd tiff-4.6.0
+mkdir -p libtiff-build &&
+cd       libtiff-build &&
+
+lar cmake -D CMAKE_INSTALL_DOCDIR=/usr/share/doc/libtiff-4.6.0 \
+      -D CMAKE_INSTALL_PREFIX=/usr -G Ninja .. &&
+lar ninja
+lar ninja install
+#gdk-pixbuf
+cd $udir
+lar wget https://download.gnome.org/sources/gdk-pixbuf/2.42/gdk-pixbuf-2.42.12.tar.xz
+lar tar -xf gdk-pixbuf-2.42.12.tar.xz
+lar cd gdk-pixbuf-2.42.12
+mkdir build &&
+cd    build &&
+
+meson setup ..            \
+      --prefix=/usr       \
+      --buildtype=release \
+      -D others=enabled   \
+      --wrap-mode=nofallback &&
+ninja
+ninja install
+#libdrm
+cd $udir
+lar wget https://dri.freedesktop.org/libdrm/libdrm-2.4.122.tar.xz
+lar tar -xf libdrm-2.4.122.tar.xz
+lar cd libdrm-2.4.122
+mkdir build &&
+cd    build &&
+
+meson setup --prefix=$XORG_PREFIX \
+            --buildtype=release   \
+            -D udev=true          \
+            -D valgrind=disabled  \
+            ..                    &&
+ninja
+ninja install
+#pymod::mako
+cd $udir
+lar wget https://files.pythonhosted.org/packages/source/M/Mako/Mako-1.3.5.tar.gz
+lar tar -xf Mako-1.3.5.tar.gz
+lar cd Mako-1.3.5
+pip3 wheel -w dist --no-build-isolation --no-deps --no-cache-dir $PWD
+pip3 install --no-index --find-links=dist --no-cache-dir --no-user Mako
+#wayland
+cd $udir
+lar wget https://gitlab.freedesktop.org/wayland/wayland/-/releases/1.23.0/downloads/wayland-1.23.0.tar.xz
+lar tar -xf wayland-1.23.0.tar.xz
+lar cd wayland-1.23.0
+mkdir build &&
+cd    build &&
+
+meson setup ..            \
+      --prefix=/usr       \
+      --buildtype=release \
+      -D documentation=false &&
+ninja
+ninja install
+#wayland-protocols
+cd $udir
+lar wget https://gitlab.freedesktop.org/wayland/wayland-protocols/-/releases/1.36/downloads/wayland-protocols-1.36.tar.xz
+lar tar -xf wayland-protocols-1.36.tar.xz
+lar cd wayland-protocols-1.36
+mkdir build &&
+cd    build &&
+
+meson setup --prefix=/usr --buildtype=release &&
+ninja
+ninja install
+# Vulkan headers
+cd $udir
+lar wget https://github.com/KhronosGroup/Vulkan-Headers/archive/v1.3.294/Vulkan-Headers-1.3.294.tar.gz
+lar tar -xf Vulkan-Headers-1.3.294.tar.gz
+lar cd Vulkan-Headers-1.3.294
+mkdir build &&
+cd    build &&
+
+lar cmake -D CMAKE_INSTALL_PREFIX=/usr -G Ninja .. &&
+lar ninja
+lar ninja install
+# Vulkan Loader
+cd $udir
+lar wget https://github.com/KhronosGroup/Vulkan-Loader/archive/v1.3.294/Vulkan-Loader-1.3.294.tar.gz
+lar tar -xf Vulkan-Loader-1.3.294.tar.gz
+lar cd Vulkan-Loader-1.3.294
+mkdir build &&
+cd    build &&
+
+cmake -D CMAKE_INSTALL_PREFIX=/usr   \
+      -D CMAKE_BUILD_TYPE=Release    \
+      -D CMAKE_SKIP_INSTALL_RPATH=ON \
+      -G Ninja .. &&
+ninja
+ninja install
+# CHOOSER 01
+echo "What is your GPU?"
+echo "1)    Intel                 2)   Other."
+read gpu_choice
+
+case $gpu_choice in
+    1)
+        echo "Choose one that is true to you. If you dont know, google it yourself."
+        echo "1)    My GPU is provided with Haswell CPUs or earlier"
+        echo "2)    My GPU is provided with Broadwell CPUs or later"
+        read intel_gen
+        case $intel_gen in
+            1) echo "vaapi"
+               # a
+               # a
+               ;;
+            2) echo "media" 
+               ;;
+        esac
+        ;;
+    2) echo "okay!" ;;
+esac
+
