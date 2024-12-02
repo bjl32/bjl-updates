@@ -449,7 +449,9 @@ cmake -D CMAKE_INSTALL_PREFIX=/usr   \
       -G Ninja .. &&
 ninja
 ninja install
+# libva
 # CHOOSER 01
+cd $udir
 echo "What is your GPU?"
 echo "1)    Intel                 2)   Other."
 read gpu_choice
@@ -462,11 +464,56 @@ case $gpu_choice in
         read intel_gen
         case $intel_gen in
             1) echo "vaapi"
-               # a
+               wget https://github.com/intel/intel-vaapi-driver/releases/download/2.4.1/intel-vaapi-driver-2.4.1.tar.bz2
+               tar -xf intel-vaapi-driver-2.4.1.tar.bz2
+               cd intel-vaapi-driver-2.4.1
+               ./configure $XORG_CONFIG &&
+               make
+               make install
+               echo "___________________________________________________________________________________________"
+               echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+               echo "==========================================================================================="
+               echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!OPERATION REQUIRED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+               echo "==========================================================================================="
+               echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+               echo "___________________________________________________________________________________________"
+
+               echo "Enable the following options in the kernel configuration. Recompile the kernel if necessary"
+               echo "Device Drivers --->"
+               echo "  Graphics support --->"
+               echo "    <*/M> Direct Rendering Manager (XFree86 4.1.0 and higher DRI support) --->"
+               echo "                                                                      ...  [DRM]"
+               echo "      <*/M> Intel 8xx/9xx/G3x/G4x/HD Graphics                         [DRM_I915]"
+               echo "DO THIS OR THE SYSTEM WILL FAIL."
                # a
                ;;
             2) echo "media" 
-               ;;
+               wget https://github.com/intel/gmmlib/archive/intel-gmmlib-22.4.1.tar.gz
+               tar -xf intel-gmmlib-22.4.1.tar.gz
+               cd intel-gmmlib-22.4.1
+               mkdir build &&
+               cd    build &&
+
+               cmake -D CMAKE_INSTALL_PREFIX=/usr \
+                     -D BUILD_TYPE=Release        \
+                     -G Ninja                     \
+                     -W no-dev ..                 &&
+              ninja
+              ninja install
+              cd $udir
+              echo "___________________________________________________________________________________________"
+              echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+              echo "==========================================================================================="
+              echo "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!OPERATION REQUIRED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+              echo "==========================================================================================="
+              echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+              echo "___________________________________________________________________________________________"
+
+              echo "FOLLOW THIS GUIDE TO PROCEED!!! https://github.com/bjl32/BJL3/wiki/Intel-Media"
+              echo "FOLLOW THIS GUIDE TO PROCEED!!! https://github.com/bjl32/BJL3/wiki/Intel-Media"
+              echo "FOLLOW THIS GUIDE TO PROCEED!!! https://github.com/bjl32/BJL3/wiki/Intel-Media"
+
+              ;;
         esac
         ;;
     2) echo "okay!" ;;
