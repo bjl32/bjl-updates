@@ -453,7 +453,7 @@ ninja install
 # CHOOSER 01
 cd $udir
 echo "What is your GPU?"
-echo "1)    Intel                 2)   Other."
+echo "1)    Intel                 2)   Other.               3)     Nvidia"
 read gpu_choice
 
 case $gpu_choice in
@@ -517,5 +517,6 @@ case $gpu_choice in
         esac
         ;;
     2) echo "okay!" ;;
+    3) echo "you're cooked. try this: https://github.com/bjl32/BJL3/wiki/nvidia-GPUs"
 esac
 
